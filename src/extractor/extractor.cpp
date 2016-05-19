@@ -89,9 +89,6 @@ int Extractor::run(ScriptingEnvironment &scripting_environment)
         }
         util::SimpleLogger().Write() << "Threads: " << number_of_threads;
 
-        ExtractionContainers extraction_containers;
-        auto extractor_callbacks = util::make_unique<ExtractorCallbacks>(extraction_containers);
-
         const osmium::io::File input_file(config.input_path.string());
         osmium::io::Reader reader(input_file);
         const osmium::io::Header header = reader.header();
@@ -102,6 +99,11 @@ int Extractor::run(ScriptingEnvironment &scripting_environment)
 
         util::SimpleLogger().Write() << "Parsing in progress..";
         TIMER_START(parsing);
+
+        auto &main_context = scripting_environment.GetContex();
+        ExtractionContainers extraction_containers;
+        auto extractor_callbacks =
+            util::make_unique<ExtractorCallbacks>(extraction_containers, main_context.properties);
 
         // setup raster sources
         scripting_environment.SetupSources();
