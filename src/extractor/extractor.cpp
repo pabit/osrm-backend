@@ -100,10 +100,9 @@ int Extractor::run(ScriptingEnvironment &scripting_environment)
         util::SimpleLogger().Write() << "Parsing in progress..";
         TIMER_START(parsing);
 
-        auto &main_context = scripting_environment.GetContex();
         ExtractionContainers extraction_containers;
         auto extractor_callbacks =
-            util::make_unique<ExtractorCallbacks>(extraction_containers, main_context.properties);
+            util::make_unique<ExtractorCallbacks>(extraction_containers, scripting_environment.GetProfileProperties());
 
         // setup raster sources
         scripting_environment.SetupSources();
@@ -274,6 +273,13 @@ void Extractor::WriteProfileProperties(const std::string &output_path,
     }
 
     out_stream.write(reinterpret_cast<const char *>(&properties), sizeof(properties));
+    //out_stream.write(reinterpret_cast<const char *>(&properties.traffic_signal_penalty), sizeof(properties.traffic_signal_penalty));
+    //out_stream.write(reinterpret_cast<const char *>(&properties.u_turn_penalty), sizeof(properties.u_turn_penalty));
+    //out_stream.write(reinterpret_cast<const char *>(&properties.continue_straight_at_waypoint), sizeof(properties.continue_straight_at_waypoint));
+    //out_stream.write(reinterpret_cast<const char *>(&properties.use_turn_restrictions), sizeof(properties.use_turn_restrictions));
+    //std::uint32_t weight_name_size = properties.weight_name.size();
+    //out_stream.write(reinterpret_cast<const char *>(&weight_name_size), sizeof(weight_name_size));
+    //out_stream.write(properties.weight_name.c_str(), weight_name_size);
 }
 
 void Extractor::FindComponents(unsigned max_edge_id,
