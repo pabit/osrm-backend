@@ -4,6 +4,7 @@
 #include "extractor/extraction_helper_functions.hpp"
 #include "extractor/extraction_node.hpp"
 #include "extractor/extraction_way.hpp"
+#include "extractor/extraction_turn.hpp"
 #include "extractor/internal_extractor_edge.hpp"
 #include "extractor/profile_properties.hpp"
 #include "extractor/raster_source.hpp"
@@ -127,9 +128,6 @@ void LuaScriptingEnvironment::InitContext(LuaScriptingContext &context)
              .property("traffic_signal_penalty",
                        &ProfileProperties::GetTrafficSignalPenalty,
                        &ProfileProperties::SetTrafficSignalPenalty)
-             .property("u_turn_penalty",
-                       &ProfileProperties::GetUturnPenalty,
-                       &ProfileProperties::SetUturnPenalty)
              .property("weight_name",
                        &ProfileProperties::SetWeightName,
                        &ProfileProperties::GetWeightName)
@@ -171,6 +169,11 @@ void LuaScriptingEnvironment::InitContext(LuaScriptingContext &context)
              .property("road_priority_class",
                        &guidance::RoadClassification::GetClass,
                        &guidance::RoadClassification::SetClass),
+
+         luabind::class_<ExtractionTurn>("Turn")
+             .def_readonly("angle", &ExtractionTurn::angle)
+             .def_readwrite("duration", &ExtractionTurn::duration)
+             .def_readwrite("weight", &ExtractionTurn::weight),
 
          luabind::class_<ExtractionWay>("ResultWay")
              // .def(luabind::constructor<>())
@@ -347,7 +350,7 @@ void LuaScriptingEnvironment::SetupSources()
     }
 }
 
-int32_t LuaScriptingEnvironment::GetTurnPenalty(const double angle)
+void EdgeBasedGraphFactory::ProcessTurn(ExtractionTurn &turn) const
 {
     auto &context = GetLuaContext();
     if (context.has_turn_penalty_function)
@@ -355,19 +358,13 @@ int32_t LuaScriptingEnvironment::GetTurnPenalty(const double angle)
         BOOST_ASSERT(context.state != nullptr);
         try
         {
-            // call lua profile to compute turn penalty
-            const double penalty =
-                luabind::call_function<double>(context.state, "turn_function", angle);
-            BOOST_ASSERT(penalty < std::numeric_limits<int32_t>::max());
-            BOOST_ASSERT(penalty > std::numeric_limits<int32_t>::min());
-            return boost::numeric_cast<int32_t>(penalty);
+            luabind::call_function<void>(context.state, "turn_function", boost::ref(turn));
         }
         catch (const luabind::error &er)
         {
             util::SimpleLogger().Write(logWARNING) << er.what();
         }
     }
-    return 0;
 }
 
 double LuaScriptingEnvironment::ProcessSegment(const osrm::util::Coordinate &source,
