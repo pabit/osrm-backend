@@ -559,7 +559,7 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
 
                     io::TurnIndexBlock turn_index_block = {
                         from_node.node_id, via_node.node_id, to_node.node_id};
-                    BOOST_ASSERT(turn_penaltie_index_file.tellp() / (sizeof(turn_index_block)) ==
+                    BOOST_ASSERT(turn_penalties_index_file.tellp() / (sizeof(turn_index_block)) ==
                                  turn_id);
                     turn_penalties_index_file.write(
                         reinterpret_cast<const char *>(&turn_index_block),
