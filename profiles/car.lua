@@ -519,7 +519,7 @@ end
 function turn_function(turn)
   ---- compute turn penalty as angle^2, with a left/right bias
   normalized_angle = turn.angle / 90.0
-  if angle >= 0.0 then
+  if turn.angle >= 0.0 then
     turn.duration = normalized_angle * normalized_angle * turn_penalty * (1 - turn_bias)
   else
     turn.duration = normalized_angle * normalized_angle * turn_penalty * (1 + turn_bias)

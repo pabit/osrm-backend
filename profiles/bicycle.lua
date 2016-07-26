@@ -100,8 +100,8 @@ properties.weight_name                   = 'cyclebiliyt'
 
 local obey_oneway               = true
 local ignore_areas              = true
-local turn_penalty              = 60
-local turn_bias                 = 1.4
+local turn_penalty              = 6
+local turn_bias                 = 0.2
 -- reduce the driving speed by 30% for unsafe roads
 -- local safety_penalty            = 0.7
 local safety_penalty            = 1.0
@@ -400,20 +400,19 @@ function way_function (way, result)
   local is_unsafe = safety_penalty < 1 and unsafe_highway_list[highway]
   if result.forward_speed > 0 then
     -- convert from km/h to m/s
-    result.forward_weight_by_meter = result.forward_speed / 3.6;
+    result.forward_weight_per_meter = result.forward_speed / 3.6;
     if is_unsafe then
-      result.forward_weight_by_meter = result.forward_weight_by_meter * safety_penalty
+      result.forward_weight_per_meter = result.forward_weight_per_meter * safety_penalty
     end
   end
   if result.backward_speed > 0 then
     -- convert from km/h to m/s
-    result.backward_weight_by_meter = result.backward_speed / 3.6;
+    result.backward_weight_per_meter = result.backward_speed / 3.6;
     if is_unsafe then
-      result.backward_weight_by_meter = result.backward_weight_by_meter * safety_penalty
+      result.backward_weight_per_meter = result.backward_weight_per_meter * safety_penalty
     end
   end
   if result.duration > 0 then
-    -- convert from km/h to m/s
     result.weight = result.duration;
     if is_unsafe then
       result.weight = result.weight * (1+safety_penalty)
@@ -421,12 +420,14 @@ function way_function (way, result)
   end
 end
 
-function turn_function (angle)
-  -- compute turn penalty as angle^2, with a left/right bias
-  k = turn_penalty/(90.0*90.0)
-  if angle>=0 then
-    return angle*angle*k/turn_bias
+function turn_function(turn)
+  ---- compute turn penalty as angle^2, with a left/right bias
+  normalized_angle = turn.angle / 90.0
+  if turn.angle >= 0.0 then
+    turn.duration = normalized_angle * normalized_angle * turn_penalty * (1 - turn_bias)
   else
-    return angle*angle*k*turn_bias
+    turn.duration = normalized_angle * normalized_angle * turn_penalty * (1 + turn_bias)
   end
+
+  turn.weight = turn.duration;
 end
