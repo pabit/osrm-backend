@@ -416,10 +416,10 @@ Feature: Turn Lane Guidance
             | da    |                            | primary | roundabout | roundabout |
 
         When I route I should get
-            | waypoints | route                    | turns                                   | lanes |
-            | x,y       | xb,dy,dy                 | depart,roundabout-exit-1,arrive         | ,,    |
-            | x,c       | xb,roundabout,roundabout | depart,roundabout-exit-undefined,arrive | ,,    |
-            | x,a       | xb,roundabout,roundabout | depart,roundabout-exit-undefined,arrive | ,,    |
+            | waypoints | route                    | turns                                   | lanes | #                        |
+            | x,y       | xb,dy,dy                 | depart,roundabout-exit-1,arrive         | ,,    | radius calc. is off here |
+            | x,c       | xb,roundabout,roundabout | depart,roundabout-exit-undefined,arrive | ,,    |                          |
+            | x,a       | xb,roundabout,roundabout | depart,roundabout-exit-undefined,arrive | ,,    |                          |
 
     @anticipate
     Scenario: No Lanes for Roundabouts, see #2626

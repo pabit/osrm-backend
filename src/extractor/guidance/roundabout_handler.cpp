@@ -315,10 +315,7 @@ RoundaboutType RoundaboutHandler::getRoundaboutType(const NodeID nid) const
     if (std::isinf(radius))
         return RoundaboutType::Roundabout;
 
-    // not within the dedicated radii for special roundabouts
-    if (radius > MAX_ROUNDABOUT_INTERSECTION_RADIUS && radius <= MAX_ROUNDABOUT_RADIUS)
-        return RoundaboutType::Roundabout;
-
+    // Looks like a rotary: large roundabout with dedicated name
     if (radius > MAX_ROUNDABOUT_RADIUS)
     {
         // do we have a dedicated name for the rotary, if not its a roundabout
@@ -329,23 +326,13 @@ RoundaboutType RoundaboutHandler::getRoundaboutType(const NodeID nid) const
         if (1 == roundabout_name_ids.size() &&
             0 == connected_names.count(*roundabout_name_ids.begin()))
             return RoundaboutType::Rotary;
-        else
-            return RoundaboutType::Roundabout;
     }
 
-    if (radius <= MAX_ROUNDABOUT_INTERSECTION_RADIUS)
-    {
-        const bool qualifies_as_roundabout_nitersection =
-            qualifiesAsRoundaboutIntersection(roundabout_nodes);
-        if (qualifies_as_roundabout_nitersection)
-        {
-            return RoundaboutType::RoundaboutIntersection;
-        }
-        else
-        {
-            return RoundaboutType::Roundabout;
-        }
-    }
+    // Looks like an intersection: four ways and turn angles are easy to distinguish
+    if (qualifiesAsRoundaboutIntersection(roundabout_nodes))
+        return RoundaboutType::RoundaboutIntersection;
+
+    // Not a special case, just a normal roundabout
     return RoundaboutType::Roundabout;
 }
 

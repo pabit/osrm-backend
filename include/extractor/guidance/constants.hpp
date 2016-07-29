@@ -21,7 +21,6 @@ const double constexpr GROUP_ANGLE = 60;
 const double constexpr FUZZY_ANGLE_DIFFERENCE = 20.;
 const double constexpr DISTINCTION_RATIO = 2;
 
-const double constexpr MAX_ROUNDABOUT_INTERSECTION_RADIUS = 5;
 const double constexpr MAX_ROUNDABOUT_RADIUS = 15; // 30 m diameter as final distinction
 const double constexpr INCREASES_BY_FOURTY_PERCENT = 1.4;
 
